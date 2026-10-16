@@ -2,6 +2,7 @@
   "name": "mi-weight-diary",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "小米减肥日记 — 一个 Q 萌的减肥记录小站",
   "type": "module",
   "engines": {

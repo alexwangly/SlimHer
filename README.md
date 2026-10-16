@@ -287,3 +287,10 @@ DUMP_HTML=.tmp/preview.html node scripts/state-check.mjs   # 需要先起后端
 - **模板字符串默认转义**：`html\`...\`` 里的插值会被自动转义，要用 HTML 得显式套 `raw()`，
   这样用户输入（备注、食物名）不会变成 XSS
 - **支持"一天多次"**：数据模型里体重就是带时间戳的流水，按天分组只是展示层的事
+
+---
+
+## 许可
+
+[MIT](LICENSE) © 2026 alexwangly
+
