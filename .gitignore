@@ -1,0 +1,13 @@
+# 依赖（其实没有）
+node_modules/
+
+# 数据 —— 里面有你的记录和 AI 密钥，绝对不要提交
+data/
+
+# 临时产物
+.tmp/
+
+# 系统垃圾
+.DS_Store
+Thumbs.db
+*.log

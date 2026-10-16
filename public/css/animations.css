@@ -1,0 +1,392 @@
+/* ==================================================================
+   小米减肥日记 · 动画库
+   ================================================================== */
+
+/* ---------- 背景 ---------- */
+@keyframes drift-a {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(6vw, 4vh, 0) scale(1.12); }
+  100% { transform: translate3d(-3vw, 8vh, 0) scale(0.96); }
+}
+
+@keyframes drift-b {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-7vw, -5vh, 0) scale(1.15); }
+  100% { transform: translate3d(4vw, -9vh, 0) scale(0.94); }
+}
+
+@keyframes float-up {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(0.7);
+    opacity: 0;
+  }
+  12% { opacity: 0.85; }
+  50% {
+    transform: translate3d(2.2vw, -48vh, 0) rotate(180deg) scale(1);
+  }
+  85% { opacity: 0.5; }
+  100% {
+    transform: translate3d(-1.6vw, -104vh, 0) rotate(360deg) scale(0.85);
+    opacity: 0;
+  }
+}
+
+/* ---------- 页面切换 ---------- */
+@keyframes view-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+    filter: blur(3px);
+  }
+  60% { filter: blur(0); }
+  100% {
+    opacity: 1;
+    transform: none;
+    filter: blur(0);
+  }
+}
+
+@keyframes view-leave {
+  0% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-10px) scale(0.99); }
+}
+
+/* ---------- 入场 ---------- */
+@keyframes rise-in {
+  0% { opacity: 0; transform: translateY(16px); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes slide-in {
+  0% { opacity: 0; transform: translateX(-14px); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+/* ---------- 导航 ---------- */
+@keyframes nav-pop {
+  0% { transform: translateY(0) scale(1); }
+  45% { transform: translateY(-9px) scale(1.3) rotate(-8deg); }
+  100% { transform: translateY(-3px) scale(1.18) rotate(0); }
+}
+
+@keyframes dot-in {
+  0% { width: 0; opacity: 0; }
+  100% { width: 20px; opacity: 1; }
+}
+
+/* ---------- 通用反馈 ---------- */
+@keyframes wiggle {
+  0%, 88%, 100% { transform: rotate(0); }
+  90% { transform: rotate(-14deg) scale(1.08); }
+  94% { transform: rotate(12deg) scale(1.08); }
+  98% { transform: rotate(-4deg); }
+}
+
+@keyframes jelly {
+  0% { transform: scale(1, 1); }
+  28% { transform: scale(1.06, 0.94); }
+  46% { transform: scale(0.96, 1.05); }
+  64% { transform: scale(1.03, 0.98); }
+  82% { transform: scale(0.99, 1.01); }
+  100% { transform: scale(1, 1); }
+}
+
+@keyframes chip-pop {
+  0% { transform: scale(0.82); }
+  55% { transform: scale(1.12); }
+  100% { transform: scale(1); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  15% { transform: translateX(-8px) rotate(-2deg); }
+  30% { transform: translateX(7px) rotate(2deg); }
+  45% { transform: translateX(-6px) rotate(-1.5deg); }
+  60% { transform: translateX(5px) rotate(1deg); }
+  80% { transform: translateX(-2px); }
+}
+
+.is-shake {
+  animation: shake 460ms var(--ease-in-out);
+}
+
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(255, 143, 177, 0.5); }
+  70% { box-shadow: 0 0 0 16px rgba(255, 143, 177, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 143, 177, 0); }
+}
+
+@keyframes shine {
+  0% { left: -120%; }
+  100% { left: 130%; }
+}
+
+@keyframes shine-slow {
+  0% { transform: translateX(-100%); }
+  60%, 100% { transform: translateX(100%); }
+}
+
+@keyframes gradient-slide {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes dots {
+  0% { content: ""; }
+  25% { content: "·"; }
+  50% { content: "··"; }
+  75% { content: "···"; }
+}
+
+@keyframes dot-bounce {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.45; }
+  30% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* ---------- 吉祥物 ---------- */
+@keyframes breathe {
+  0%, 100% { transform: scale(1, 1) translateY(0); }
+  50% { transform: scale(1.035, 0.975) translateY(2px); }
+}
+
+@keyframes bounce-soft {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  30% { transform: translateY(-9px) scale(0.97, 1.04); }
+  55% { transform: translateY(0) scale(1.05, 0.95); }
+  75% { transform: translateY(-3px) scale(0.99, 1.01); }
+}
+
+@keyframes droop {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(4px) rotate(-2deg) scale(0.98, 1.02); }
+}
+
+@keyframes cheer {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0); }
+  25% { transform: translateY(-12px) scale(1.05, 0.95) rotate(-5deg); }
+  50% { transform: translateY(0) scale(0.96, 1.06) rotate(0); }
+  75% { transform: translateY(-7px) scale(1.03, 0.97) rotate(5deg); }
+}
+
+@keyframes tail-wag {
+  0%, 100% { transform: rotate(-13deg); }
+  50% { transform: rotate(15deg); }
+}
+
+@keyframes ear-twitch {
+  0%, 90%, 100% { transform: rotate(0); }
+  93% { transform: rotate(-9deg); }
+  96% { transform: rotate(6deg); }
+}
+
+@keyframes blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  94% { transform: scaleY(0.08); }
+  96% { transform: scaleY(1); }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-5deg) translateY(0); }
+  50% { transform: rotate(5deg) translateY(-5px); }
+}
+
+/* ---------- Toast ---------- */
+@keyframes toast-in {
+  0% { opacity: 0; transform: translateY(-24px) scale(0.9); }
+  100% { opacity: 1; transform: none; }
+}
+
+@keyframes toast-out {
+  0% { opacity: 1; transform: none; }
+  100% { opacity: 0; transform: translateY(-16px) scale(0.94); }
+}
+
+/* ---------- 抽屉 / 弹窗 ---------- */
+@keyframes sheet-up {
+  0% { transform: translate(-50%, 102%); }
+  100% { transform: translate(-50%, 0); }
+}
+
+@keyframes sheet-down {
+  0% { transform: translate(-50%, 0); }
+  100% { transform: translate(-50%, 102%); }
+}
+
+@keyframes modal-pop {
+  0% { opacity: 0; transform: scale(0.78) translateY(20px); }
+  60% { opacity: 1; transform: scale(1.04) translateY(0); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes modal-out {
+  0% { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0.9) translateY(10px); }
+}
+
+/* ---------- 启动 ---------- */
+@keyframes boot-hop {
+  0%, 100% { transform: translateY(0) scale(1, 1); }
+  35% { transform: translateY(-22px) scale(0.94, 1.08); }
+  60% { transform: translateY(0) scale(1.08, 0.92); }
+  75% { transform: translateY(-6px) scale(0.99, 1.01); }
+}
+
+/* ---------- 转盘 / 老虎机 ---------- */
+@keyframes pointer-bob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(4px); }
+}
+
+@keyframes hub-wobble {
+  0%, 100% { transform: translate(-50%, -50%) rotate(-7deg) scale(1); }
+  50% { transform: translate(-50%, -50%) rotate(7deg) scale(1.06); }
+}
+
+@keyframes slot-win {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.05) rotate(-1.4deg); }
+  60% { transform: scale(0.98) rotate(1.2deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+
+/* ---------- 庆祝 ---------- */
+@keyframes celebrate-pop {
+  0% { opacity: 0; transform: scale(0.7) translateY(28px); }
+  55% { opacity: 1; transform: scale(1.06) translateY(-4px); }
+  75% { transform: scale(0.98) translateY(2px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+@keyframes number-pop {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.22); }
+  70% { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+.is-number-pop {
+  animation: number-pop 560ms var(--ease-pop);
+}
+
+@keyframes heart-fly {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4) rotate(0deg);
+  }
+  18% { opacity: 1; }
+  100% {
+    opacity: 0;
+    transform: translate(var(--dx, 0px), var(--dy, -180px)) scale(1.1)
+      rotate(var(--rot, 30deg));
+  }
+}
+
+@keyframes ring-flash {
+  0% { opacity: 0; transform: scale(0.5); }
+  35% { opacity: 0.85; }
+  100% { opacity: 0; transform: scale(2.2); }
+}
+
+@keyframes badge-in {
+  0% { opacity: 0; transform: scale(0.4) rotate(-25deg); }
+  55% { opacity: 1; transform: scale(1.18) rotate(8deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+.is-badge-in {
+  animation: badge-in 700ms var(--ease-pop) both;
+}
+
+/* 逐字浮现 */
+@keyframes char-in {
+  0% { opacity: 0; transform: translateY(12px) rotate(-8deg); }
+  100% { opacity: 1; transform: none; }
+}
+
+.char-in {
+  display: inline-block;
+  animation: char-in 420ms var(--ease-pop) both;
+}
+
+/* 打字机光标 */
+@keyframes caret {
+  0%, 45% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+/* ---------- 打卡 / 月历 / 成就 / 周报 ---------- */
+
+/* 水杯里走来走去的水波 */
+@keyframes cup-wave {
+  from { transform: translateX(0); }
+  to { transform: translateX(-26px); }
+}
+
+/* 倒水时杯子被"砸"一下 */
+@keyframes cup-splash {
+  0% { transform: scale(1); }
+  35% { transform: scale(0.94, 1.05) translateY(3px); }
+  65% { transform: scale(1.05, 0.96) translateY(-2px); }
+  100% { transform: scale(1); }
+}
+
+.is-pouring {
+  animation: cup-splash 520ms var(--ease-pop);
+}
+
+/* 月历格子挨个弹出来 */
+@keyframes cell-pop {
+  from { opacity: 0; transform: scale(0.6) translateY(6px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* 已解锁的勋章轻轻上下浮 */
+@keyframes badge-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-3px) rotate(-4deg); }
+}
+
+/* 新成就角上的小红点 */
+@keyframes ping {
+  0% { box-shadow: 0 0 0 0 rgba(242, 104, 143, 0.65); }
+  70% { box-shadow: 0 0 0 8px rgba(242, 104, 143, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(242, 104, 143, 0); }
+}
+
+/* 周报里的柱子从底下长出来 */
+@keyframes bar-grow {
+  from { transform: scaleY(0.04); opacity: 0.4; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+/* 周报卡片翻进来 */
+@keyframes report-in {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* 经期那朵小花开合 */
+@keyframes bloom {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  50% { transform: scale(1.14) rotate(6deg); }
+}
+

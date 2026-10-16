@@ -1,0 +1,26 @@
+[Unit]
+Description=Mi Weight Diary (小米减肥日记)
+Documentation=file:///opt/mi-diary/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+# ↓↓↓ 改成你服务器上的实际路径和用户 ↓↓↓
+User=mi
+WorkingDirectory=/opt/mi-diary
+ExecStart=/usr/bin/node /opt/mi-diary/server/index.mjs
+Environment=NODE_ENV=production
+Environment=PORT=4321
+Environment=HOST=127.0.0.1
+Restart=always
+RestartSec=3
+# 只给数据目录写权限就够了
+ReadWritePaths=/opt/mi-diary/data
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target
