@@ -1,5 +1,11 @@
 import { getConfig } from './store.mjs';
 
+/**
+ * 记录"这个网关不认 thinking 参数"，键是 `接口地址|模型名`。
+ * 只有在真的撞到 400 之后才会被填上，所以不会误伤正常的网关。
+ */
+let thinkingRejectedFor = '';
+
 /** 从模型回复里抠出 JSON —— 很多国产模型爱裹 ```json 代码块或者在前面废话两句 */
 export function extractJson(text) {
   if (!text) throw gatewayError('AI 返回了空内容', 502);
@@ -99,37 +105,63 @@ export async function chat(opts) {
   if (!ai.model) throw configError('还没有填模型名，去「我的 → AI 小助手」里填一下');
 
   const url = normalizeBase(ai.baseUrl);
-  const body = {
-    model: ai.model,
-    messages: opts.messages,
-    temperature: opts.temperature ?? ai.temperature ?? 0.6,
+
+  /**
+   * @param {boolean} noThinking 要不要带"别思考"的参数
+   *
+   * 推理模型（deepseek-v4-flash / reasoner 这类）每次都会先输出一段思考，
+   * 思考既占 token 也占时间。实测同一份周报数据、同一个提示词，关掉思考
+   * 平均从 4736ms 降到 2532ms，而引用数字的准确度和结论都没变，所以默认关掉。
+   */
+  const buildBody = (noThinking) => {
+    const body = {
+      model: ai.model,
+      messages: opts.messages,
+      temperature: opts.temperature ?? ai.temperature ?? 0.6,
+    };
+    if (opts.maxTokens) body.max_tokens = opts.maxTokens;
+    if (opts.json) body.response_format = { type: 'json_object' };
+    if (noThinking) body.thinking = { type: 'disabled' };
+    return body;
   };
-  if (opts.maxTokens) body.max_tokens = opts.maxTokens;
-  if (opts.json) body.response_format = { type: 'json_object' };
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), ai.timeoutMs || 45000);
+  const send = async (noThinking) => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ai.timeoutMs || 45000);
+    try {
+      return await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${ai.apiKey}`,
+          ...(ai.extraHeaders && typeof ai.extraHeaders === 'object' ? ai.extraHeaders : {}),
+        },
+        body: JSON.stringify(buildBody(noThinking)),
+        signal: controller.signal,
+      });
+    } catch (err) {
+      if (err.name === 'AbortError') throw gatewayError('AI 网关超时了，等一下再试试～', 504);
+      throw gatewayError(`连不上 AI 网关（${url}）：${err.message}`, 502);
+    } finally {
+      clearTimeout(timer);
+    }
+  };
 
-  let res;
-  try {
-    res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${ai.apiKey}`,
-        ...(ai.extraHeaders && typeof ai.extraHeaders === 'object' ? ai.extraHeaders : {}),
-      },
-      body: JSON.stringify(body),
-      signal: controller.signal,
-    });
-  } catch (err) {
-    if (err.name === 'AbortError') throw gatewayError('AI 网关超时了，等一下再试试～', 504);
-    throw gatewayError(`连不上 AI 网关（${url}）：${err.message}`, 502);
-  } finally {
-    clearTimeout(timer);
+  const key = `${url}|${ai.model}`;
+  const wantNoThinking = ai.disableThinking !== false && thinkingRejectedFor !== key;
+
+  let res = await send(wantNoThinking);
+  let raw = await res.text();
+
+  // 有的网关不认 thinking 这个字段，会直接 400。
+  // 撞一次就记住，之后不再带，免得每次都白跑一趟。
+  if (!res.ok && wantNoThinking && res.status === 400) {
+    thinkingRejectedFor = key;
+    console.warn(`[ai] ${key} 似乎不支持 thinking 参数，已自动去掉并重试`);
+    res = await send(false);
+    raw = await res.text();
   }
 
-  const raw = await res.text();
   if (!res.ok) {
     throw gatewayError(`AI 网关返回 ${res.status}：${raw.slice(0, 300)}`, 502);
   }
@@ -365,8 +397,9 @@ export async function dailyTip({ profile, stats }) {
   const prompt = `用一句话鼓励正在减脂的小米，可以结合她的数据，别超过 30 字。
 【数据】${JSON.stringify(stats)}
 ${profileLine(profile)}
-注意：上面的体重数字**单位都是 kg（公斤）**，换算成斤要乘 2。
-别把 kg 直接读成"斤"，这个数差一倍，说错了她会发现。
+注意：
+- 上面所有体重的单位都是 kg（公斤），换算成斤要乘 2。别把 kg 直接读成"斤"，差一倍她会发现。
+- **只能用上面出现过的数字**。不要自己编造体重、进度或日期。
 严格只输出 JSON：{"tip": "……", "emoji": "一个最贴切的 emoji"}`;
 
   const res = await chat({

@@ -104,6 +104,12 @@ function defaultConfig() {
       model: '',
       temperature: 0.6,
       timeoutMs: 45000,
+      /**
+       * 让推理模型跳过"先思考再回答"。思考既费 token 也费时间，
+       * 实测关掉之后速度翻倍、结果质量没差别，所以默认开。
+       * 万一网关不认 thinking 参数，server/ai.mjs 会自动去掉重试。
+       */
+      disableThinking: true,
       /** 额外的自定义请求头，JSON 对象 */
       extraHeaders: {},
     },

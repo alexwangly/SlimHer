@@ -538,15 +538,17 @@ export function buildReport(db, stats, period = 'week', offset = 0) {
 /** 把报告压成给 AI 的一段文字 */
 export function reportPromptPayload(report, profile) {
   const r = report;
+  // 键名带上单位，模型就不用猜了：之前只写"期内变化"，
+  // 它把 kg 当斤说过"掉3斤多"（实际 6.4 斤）。
   return {
     周期: `${r.start} ~ ${r.end}（${r.label}）`,
-    身高: profile?.height ?? null,
-    目标体重: profile?.targetWeight ?? null,
-    体重: {
+    身高cm: profile?.height ?? null,
+    目标体重kg: profile?.targetWeight ?? null,
+    体重kg: {
       期内变化: r.weight.change,
       期初: r.weight.first,
       期末: r.weight.last,
-      平均: r.weight.avg,
+      本期平均: r.weight.avg,
       上一期平均: r.weight.prevAvg,
       最低: r.weight.min,
       最高: r.weight.max,
@@ -557,12 +559,43 @@ export function reportPromptPayload(report, profile) {
       记录餐数: r.meal.count,
       记录天数: r.meal.days,
       平均健康分: r.meal.avgScore,
-      日均热量: r.meal.kcalPerDay,
+      日均热量kcal: r.meal.kcalPerDay,
       吃得最好的一顿: r.meal.best,
       最该反省的一顿: r.meal.worst,
     },
     打卡: r.checkin,
     经期: r.period_hint,
+  };
+}
+
+/**
+ * 每日鼓励要发给 AI 的数据。
+ *
+ * 只为了一句 30 字的鼓励，没必要把整条体重时间序列发过去：
+ * 又费 token，又容易让模型在一堆数字里把哪个是哪个搅混
+ * （实测发全量的时候它编出过数据里根本不存在的"65公斤"）。
+ * 所以这里只挑真正会用到的几个标量。
+ */
+export function dailyTipPayload(stats, profile) {
+  const s = stats || {};
+  const num = (x) => (x == null || !Number.isFinite(Number(x)) ? null : Number(x));
+  return {
+    她的昵称: profile?.nickname || null,
+    身高cm: profile?.height ?? null,
+    目标体重kg: profile?.targetWeight ?? null,
+    当前体重kg: num(s.latestKg),
+    起始体重kg: num(s.startWeight),
+    一共减掉kg: num(s.totalLost),
+    离目标还差kg: num(s.toGoal),
+    进度百分比: num(s.goalProgress),
+    历史最低kg: num(s.lowest),
+    BMI: num(s.bmi),
+    BMI评价: s.bmiLabel || null,
+    连续记录天数: num(s.streak),
+    最近7天体重变化kg: num(s.trend7),
+    今天记录餐数: num(s.todayMeals),
+    今天热量kcal: num(s.todayKcal),
+    今天饮食健康分: num(s.todayScore),
   };
 }
 

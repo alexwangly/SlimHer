@@ -22,6 +22,7 @@ import {
   markAchievementsSeen,
   buildReport,
   reportPromptPayload,
+  dailyTipPayload,
   normalizeCheckin,
   shiftDay,
   daysBetween,
@@ -714,8 +715,8 @@ route('POST', '/api/decide', async (req, res) => {
 route('POST', '/api/daily-tip', async (req, res) => {
   const db = await getDb();
   const stats = buildStats(db, 30);
-  const { series, allDays, weights, ...rest } = stats;
-  const result = await dailyTip({ profile: db.profile, stats: rest });
+  // 只发一句鼓励用得上的那几个数，不要把整条时间序列塞过去
+  const result = await dailyTip({ profile: db.profile, stats: dailyTipPayload(stats, db.profile) });
   ok(res, { tip: result });
 });
 
@@ -756,6 +757,7 @@ route('PUT', '/api/config', async (req, res) => {
     if ('model' in a) config.ai.model = String(a.model).trim();
     if ('temperature' in a) config.ai.temperature = Math.max(0, Math.min(2, Number(a.temperature) || 0.6));
     if ('timeoutMs' in a) config.ai.timeoutMs = Math.max(5000, Math.min(180000, Number(a.timeoutMs) || 45000));
+    if ('disableThinking' in a) config.ai.disableThinking = !!a.disableThinking;
     // 只在前端真的传了新 key 时才覆盖，避免把掩码写回去
     if (a.apiKey && !a.apiKey.startsWith('••')) config.ai.apiKey = String(a.apiKey).trim();
     if (a.apiKey === '') config.ai.apiKey = '';

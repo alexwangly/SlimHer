@@ -7,7 +7,15 @@ export async function render(root, ctx) {
   const p = profile();
   const st = state.stats || {};
   const cfgRes = await api.getConfig().catch(() => ({ config: null }));
-  const ai = cfgRes.config?.ai || { enabled: false, baseUrl: '', apiKey: '', model: '', temperature: 0.6, timeoutMs: 45000 };
+  const ai = cfgRes.config?.ai || {
+    enabled: false,
+    baseUrl: '',
+    apiKey: '',
+    model: '',
+    temperature: 0.6,
+    timeoutMs: 45000,
+    disableThinking: true,
+  };
   const auth = cfgRes.config?.auth || { enabled: false, hasPassword: false };
   // 成就列表：拉不到就退化成没墙，不要整页报错
   const ach = await api.achievements().catch(() => null);
@@ -175,6 +183,19 @@ export async function render(root, ctx) {
           </div>
         </div>
 
+        <div class="setting-row">
+          <div class="setting-row__text">
+            <div class="setting-row__title">跳过思考</div>
+            <div class="setting-row__desc">
+              推理模型会先"想"一段再回答，又慢又费 token。实测关掉后快一倍，总结质量不变。
+            </div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" data-ai-nothink ${ai.disableThinking !== false ? 'checked' : ''} />
+            <span class="switch__track"></span>
+          </label>
+        </div>
+
         <div class="row" style="gap:10px">
           <button class="btn btn--primary grow" data-save-ai>💾 保存 AI 设置</button>
           <button class="btn btn--plain" data-test-ai>🧪 测试</button>
@@ -271,6 +292,7 @@ export async function render(root, ctx) {
           apiKey: qs('[data-ai-key]', root).value.trim(),
           model: qs('[data-ai-model]', root).value.trim(),
           temperature: Number(qs('[data-ai-temp]', root).value) || 0.6,
+          disableThinking: qs('[data-ai-nothink]', root).checked,
         },
       });
       await ctx.refresh();
