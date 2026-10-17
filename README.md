@@ -242,10 +242,49 @@ sudo systemctl enable --now mi-diary
 
 ### Docker
 
+最省事的是 compose，数据用命名卷，不用管权限：
+
+```bash
+docker compose up -d
+docker compose logs -f
+```
+
+也可以直接 `docker run`：
+
 ```bash
 docker build -t mi-diary .
+docker run -d --name mi-diary -p 8087:8087 -v mi-diary-data:/app/data mi-diary
+```
+
+#### 数据目录权限（换成挂宿主机目录时必看）
+
+容器里的进程是 `node` 用户（uid **1000**），不是 root。
+如果你把宿主机的目录挂进去，而那个目录是 root 建的，就会这样：
+
+```
+Error: EACCES: permission denied, mkdir '/app/data/backups'
+```
+
+**这不是程序的问题，是那个目录容器写不了。** 先给目录改归属再起容器：
+
+```bash
+mkdir -p ./data
+chown -R 1000:1000 ./data          # 目录必须属于 uid 1000
 docker run -d --name mi-diary -p 8087:8087 -v "$PWD/data:/app/data" mi-diary
 ```
+
+> 用命名卷（`-v mi-diary-data:/app/data`）就完全没有这个问题 ——
+> 卷的归属会从镜像里继承，已经是 node 的了。
+> 想 tar 备份宿主机上的 `./data` 就用挂载目录的方式，代价是上面那句 `chown`。
+
+备份命名卷里的数据：
+
+```bash
+docker run --rm -v mi-diary-data:/data -v "$PWD:/backup" alpine \
+  tar czf /backup/mi-diary-$(date +%F).tgz -C /data .
+```
+
+或者更简单 —— 界面里 **我的 → 数据 → 导出备份**，直接下载一个 JSON。
 
 ---
 

@@ -922,8 +922,21 @@ const server = http.createServer(async (req, res) => {
 });
 
 backupDaily().catch(() => {});
-await getDb();
-await getConfig();
+
+// 启动阶段出错（数据目录没权限之类）时，把说明完整打出来再退出。
+// 不拦的话 Node 会甩一大段 await 堆栈，真正有用的那几句反而被冲掉了。
+try {
+  await getDb();
+  await getConfig();
+} catch (err) {
+  console.error('');
+  console.error('  [x] 启动失败：');
+  for (const line of String(err.message || err).split('\n')) {
+    console.error(line ? `      ${line}` : '');
+  }
+  console.error('');
+  process.exit(1);
+}
 
 server.listen(PORT, HOST, () => {
   const shown = HOST === '0.0.0.0' ? 'localhost' : HOST;

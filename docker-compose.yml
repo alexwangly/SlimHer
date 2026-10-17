@@ -1,0 +1,30 @@
+# 小米减肥日记 —— docker compose 一键起
+#
+#   docker compose up -d
+#   docker compose logs -f
+#   docker compose down
+#
+services:
+  mi-diary:
+    build: .
+    image: mi-diary
+    container_name: mi-diary
+    restart: unless-stopped
+    ports:
+      # 左边是宿主机端口，想换就改这里（程序内部固定听 8087）
+      - "8087:8087"
+
+    # 数据持久化：默认用命名卷，不用管权限，开箱即用。
+    volumes:
+      - mi-diary-data:/app/data
+
+      # ↓ 想让数据文件直接落在宿主机的 ./data 里（方便 tar 备份）就换成下面这行，
+      #   并且**必须先给目录改归属**，否则容器里的 node 用户（uid 1000）写不进去，
+      #   日志里会是 EACCES: permission denied, mkdir '/app/data/backups'：
+      #
+      #     mkdir -p ./data && chown -R 1000:1000 ./data
+      #
+      # - ./data:/app/data
+
+volumes:
+  mi-diary-data:

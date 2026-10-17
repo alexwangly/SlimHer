@@ -131,8 +131,33 @@ let configCache = null;
 let writeQueue = Promise.resolve();
 
 async function ensureDirs() {
-  await mkdir(DATA_DIR, { recursive: true });
-  await mkdir(BACKUP_DIR, { recursive: true });
+  try {
+    await mkdir(DATA_DIR, { recursive: true });
+    await mkdir(BACKUP_DIR, { recursive: true });
+  } catch (err) {
+    if (err.code === 'EACCES' || err.code === 'EPERM' || err.code === 'EROFS') {
+      // 最常见的是 Docker 里把宿主机的 data/ 挂进来，而那个目录是 root 建的，
+      // 容器里的进程没权限写。原始的 EACCES 堆栈完全看不出该怎么办，
+      // 所以这里直接把原因和命令写出来。
+      throw new Error(
+        [
+          `数据目录没有写权限：${DATA_DIR}`,
+          `（${err.code}: ${err.message}）`,
+          '',
+          '如果你是用 Docker 跑的，多半是挂进来的宿主机目录属于 root，',
+          '而容器里的 node 用户（uid 1000）写不了。在宿主机上执行一次：',
+          '',
+          '  mkdir -p ./data && chown -R 1000:1000 ./data',
+          '',
+          '然后重建容器。不想折腾权限的话，可以把 -v 换成命名卷：',
+          '  -v mi-diary-data:/app/data',
+          '',
+          '如果是直接跑 node（不是 Docker），确认当前用户对 data/ 有写权限。',
+        ].join('\n'),
+      );
+    }
+    throw err;
+  }
 }
 
 async function readJson(file, fallback) {
