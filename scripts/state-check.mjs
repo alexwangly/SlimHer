@@ -9,7 +9,7 @@
  *
  * 用法：先 node server/index.mjs，再 node scripts/state-check.mjs
  */
-const BASE = process.env.BASE || 'http://127.0.0.1:4321';
+const BASE = process.env.BASE || 'http://127.0.0.1:8087';
 
 /**
  * 设了 DUMP_HTML=<路径> 就把渲染出来的 HTML 配上一套真样式，
@@ -288,8 +288,8 @@ if (DUMP_HTML) {
 <head>
 <meta charset="utf-8" />
 <title>state-check 预览</title>
-<link rel="stylesheet" href="http://127.0.0.1:4321/css/style.css" />
-<link rel="stylesheet" href="http://127.0.0.1:4321/css/animations.css" />
+<link rel="stylesheet" href="http://127.0.0.1:8087/css/style.css" />
+<link rel="stylesheet" href="http://127.0.0.1:8087/css/animations.css" />
 <style>
   body { background: var(--cream); margin: 0; }
   .preview { max-width: 512px; margin: 0 auto; padding: 16px 12px 60px; }

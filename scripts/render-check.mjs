@@ -4,7 +4,7 @@
  *
  * 用法：先 node server/index.mjs，再 node scripts/render-check.mjs
  */
-const BASE = process.env.BASE || 'http://127.0.0.1:4321';
+const BASE = process.env.BASE || 'http://127.0.0.1:8087';
 
 /* ---------------- DOM 替身 ---------------- */
 
@@ -95,11 +95,24 @@ globalThis.fetch = (url, opts) =>
 
 const VIEWS = ['home', 'weight', 'food', 'decide', 'checkin', 'me', 'report'];
 
-/** 每个页面必须出现的东西，防止"渲染成功了但其实是空的" */
+/**
+ * 每个页面必须出现的东西，防止"渲染成功了但其实是空的"。
+ * 值可以是一个函数，用来表达"有数据时才该出现"的内容 ——
+ * 比如饮食页的 .meal-block 只在当天有记录时才渲染，
+ * 写死成常量的话，只要今天还没吃饭，检查就会误报。
+ */
 const MUST_CONTAIN = {
   home: ['big-number', 'stat__value', 'card__title'],
   weight: ['data-chart', 'data-kg'],
-  food: ['data-add', 'meal-block'],
+  food: [
+    'data-add',
+    'card__title',
+    // 今天记过饭就应该能看到餐次块，没记就该看到空状态，两者必居其一
+    (html) =>
+      html.includes('meal-block') || html.includes('还没有记录')
+        ? null
+        : '当天的饮食既没有 meal-block 也没有空状态',
+  ],
   checkin: ['cal__grid', 'data-cal-day', 'cup__fill', 'data-water-add'],
   report: ['data-kind', 'kv__v', 'card'],
   me: ['badge-grid', 'data-go-report'],
@@ -148,6 +161,11 @@ for (const name of VIEWS) {
 
     // 必须出现的关键内容
     for (const needle of MUST_CONTAIN[name] || []) {
+      if (typeof needle === 'function') {
+        const msg = needle(html);
+        if (msg) bad.push(`缺少关键内容: ${msg}`);
+        continue;
+      }
       if (!html.includes(needle)) bad.push(`缺少关键内容: ${needle}`);
     }
 

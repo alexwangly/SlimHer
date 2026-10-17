@@ -13,10 +13,10 @@ RUN mkdir -p /app/data && chown -R node:node /app
 VOLUME ["/app/data"]
 
 USER node
-ENV PORT=4321 HOST=0.0.0.0
-EXPOSE 4321
+ENV PORT=8087 HOST=0.0.0.0
+EXPOSE 8087
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s \
-  CMD node -e "fetch('http://127.0.0.1:4321/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+  CMD node -e "fetch('http://127.0.0.1:'+(process.env.PORT||8087)+'/api/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
 
 CMD ["node", "server/index.mjs"]

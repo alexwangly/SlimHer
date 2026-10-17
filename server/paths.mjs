@@ -14,5 +14,6 @@ export const DB_FILE = path.join(DATA_DIR, 'db.json');
 export const CONFIG_FILE = path.join(DATA_DIR, 'config.json');
 export const BACKUP_DIR = path.join(DATA_DIR, 'backups');
 
-export const PORT = Number(process.env.PORT || 4321);
+/** 默认 8087，可以用环境变量 PORT 盖掉：PORT=9000 node server/index.mjs */
+export const PORT = Number(process.env.PORT || 8087);
 export const HOST = process.env.HOST || '0.0.0.0';

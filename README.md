@@ -28,7 +28,7 @@
 
 ```bash
 node server/index.mjs
-# 然后浏览器打开 http://localhost:4321
+# 然后浏览器打开 http://localhost:8087
 ```
 
 Windows 上双击 `启动.bat` 也行，Linux/macOS 用 `./start.sh`。
@@ -166,13 +166,69 @@ AI 总结长这样（下面这张是接真实网关跑出来的，点一下"让 
 直接跑：
 
 ```bash
-PORT=8080 node server/index.mjs
+bash start.sh              # 默认 0.0.0.0:8087
 ```
 
-`PORT` 和 `HOST` 都支持环境变量，默认 `0.0.0.0:4321`。
+或者不要脚本：
+
+```bash
+node server/index.mjs              # 还是 8087
+PORT=9000 node server/index.mjs    # 想换端口就设 PORT
+```
+
+`PORT` 和 `HOST` 都支持环境变量，默认 `0.0.0.0:8087`。
+端口只在 `server/paths.mjs` 里定义一处，改默认值改那一行就够了。
 
 **强烈建议先打开口令保护**：我的 → 访问口令 → 打开口令保护，设一个口令。
 这个站没有多用户体系，口令只是防止别人误闯你的日记，**别用你的重要密码**。
+
+### 老服务器（glibc < 2.28）
+
+如果 `start.sh` 报这种错：
+
+```
+node: /lib64/libstdc++.so.6: version `GLIBCXX_3.4.21' not found (required by node)
+node: /lib64/libm.so.6: version `GLIBC_2.27' not found (required by node)
+node: /lib64/libc.so.6: version `GLIBC_2.28' not found (required by node)
+```
+
+**不是这个项目的问题，是 Node 装错了包**。CentOS 7 / Alibaba Cloud Linux 2 这类系统
+的 glibc 只有 2.17，而官网默认的 Node 20+ 编译时要求 2.28，所以二进制一启动就崩。
+
+先确认一下：
+
+```bash
+ldd --version | head -n 1     # glibc 2.17 就属于这种情况
+cat /etc/redhat-release       # 多半是 CentOS 7
+```
+
+官网另外提供了一版专门为这些老系统编译的 Node（`glibc-217` 后缀），装它就对了：
+
+```bash
+cd /usr/local
+curl -LO https://unofficial-builds.nodejs.org/download/release/v24.22.0/node-v24.22.0-linux-x64-glibc-217.tar.gz
+tar xf node-v24.22.0-linux-x64-glibc-217.tar.gz
+ln -sf /usr/local/node-v24.22.0-linux-x64-glibc-217/bin/node /usr/local/bin/node
+ln -sf /usr/local/node-v24.22.0-linux-x64-glibc-217/bin/npm  /usr/local/bin/npm
+node -v                       # 能打出版本号就成
+```
+
+> 认准文件名里的 **`glibc-217`**。装成 `node-v24.22.0-linux-x64.tar.gz` 就是上面那个错。
+> 校验一下更稳妥：
+> `sha256sum node-v24.22.0-linux-x64-glibc-217.tar.gz` 应该是
+> `aad078e6876c1d61c0985ab244602a54598fd7590dfcc33e62aa6dbb03306f22`。
+
+装好之后 `bash start.sh` 就能起来了。这样装出来的 node 在 `/usr/local/bin`，
+systemd 的 unit 里记得写**绝对路径**（`ExecStart=/usr/local/bin/node ...`），
+因为 systemd 不走你登录时的 PATH。
+
+**不想折腾 glibc 的话，用 Docker 更省事** —— 镜像里的 Node 是 Debian 编译的，
+跟宿主机的 glibc 没有关系：
+
+```bash
+docker build -t mi-diary .
+docker run -d --name mi-diary -p 8087:8087 -v "$PWD/data:/app/data" mi-diary
+```
 
 ### systemd（Linux 服务器）
 
@@ -188,7 +244,7 @@ sudo systemctl enable --now mi-diary
 
 ```bash
 docker build -t mi-diary .
-docker run -d --name mi-diary -p 4321:4321 -v "$PWD/data:/app/data" mi-diary
+docker run -d --name mi-diary -p 8087:8087 -v "$PWD/data:/app/data" mi-diary
 ```
 
 ---

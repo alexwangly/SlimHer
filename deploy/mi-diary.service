@@ -11,7 +11,7 @@ User=mi
 WorkingDirectory=/opt/mi-diary
 ExecStart=/usr/bin/node /opt/mi-diary/server/index.mjs
 Environment=NODE_ENV=production
-Environment=PORT=4321
+Environment=PORT=8087
 Environment=HOST=127.0.0.1
 Restart=always
 RestartSec=3

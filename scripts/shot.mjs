@@ -27,7 +27,7 @@ const arg = (name, dflt) => {
   return i >= 0 && argv[i + 1] ? argv[i + 1] : dflt;
 };
 
-const BASE = process.env.BASE || 'http://127.0.0.1:4321';
+const BASE = process.env.BASE || 'http://127.0.0.1:8087';
 const WIDTH = Number(arg('w', 390));
 const HEIGHT = Number(arg('h', 844));
 const OUT = arg('out', 'docs/screenshots');
